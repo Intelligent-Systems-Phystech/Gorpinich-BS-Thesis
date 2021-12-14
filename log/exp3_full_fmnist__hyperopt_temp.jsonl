@@ -1,0 +1,3 @@
+{"results": [{"epoch": 0, "test loss": 0.4550923705101013, "accuracy": 0.8342999815940857}], "version": "3_full_fmnist_"}
+{"results": [{"epoch": 0, "test loss": 0.4537331759929657, "accuracy": 0.8348999619483948}], "version": "3_full_fmnist_"}
+{"results": [{"epoch": 0, "test loss": 0.44873157143592834, "accuracy": 0.8334999680519104}], "version": "3_full_fmnist_"}
