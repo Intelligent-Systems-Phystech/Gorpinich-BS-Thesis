@@ -1,1 +1,5 @@
-# Gorpinich-BS-Thesis
+# Metaparameter optimization in knowledge distillation
+
+**Authors**: M. Gorpinich, O. Bakhteev, V. Strijov
+
+This paper investigates the deep learning knowledge distillation problem. Knowledge distillation is a model parameter optimization problem that allows transferring information contained in the model with high complexity, called teacher, to the simpler one, called student. The paper proposes a generalization of the knowledge distillation optimization problem to optimize metaparameters by gradient descent. Metaparameters are the parameters of knowledge distillation optimization problem. The loss function is a sum of the classification term and cross-entropy between answers of the student model and teacher model. An assignment of optimal metaparameters for the distillation loss function is a computationally expensive task. We investigate the properties of optimization problem and methods to optimize and predict the regularization path of metaparameters. We analyze the trajectory of the metaparamets gradient-based optimization and approximate them using linear functions.  We evaluate the proposed method on the CIFAR-10 and Fashion-MNIST datasets and synthetic data.
