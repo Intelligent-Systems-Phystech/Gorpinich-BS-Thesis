@@ -22,6 +22,8 @@ Pillow == 7.2.0
 ## Main experiments:
 
 [Synthetic data](https://github.com/Intelligent-Systems-Phystech/Gorpinich-BS-Thesis/blob/master/notebooks/synthetic_data_experiment.ipynb)
+
 [CIFAR-10](https://github.com/Intelligent-Systems-Phystech/Gorpinich-BS-Thesis/blob/master/notebooks/cifar_data_experiment.ipynb)
+
 [Fashion-MNIST](https://github.com/Intelligent-Systems-Phystech/Gorpinich-BS-Thesis/blob/master/notebooks/full_fmnist_data_experiment.ipynb)
 
