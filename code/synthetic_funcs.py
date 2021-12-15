@@ -26,6 +26,15 @@ class LogReg(t.nn.Module):
 
 
 def accuracy(student, x,y):
+    '''
+    Counts accuracy score
+    
+    student: student model
+    x: features
+    y: labels
+    
+    return: accuracy score
+    '''
     student.eval()
     total = 0
     correct = 0
@@ -40,7 +49,16 @@ def accuracy(student, x,y):
 kl = t.nn.KLDivLoss(reduction='batchmean')
 sm = t.nn.Softmax(dim=1)
 
-def distill(out, batch_logits, temp):    
+def distill(out, batch_logits, temp):
+    '''
+    Counts the distillation term of loss function on a current batch
+    
+    out: output of the student model
+    batch_logits: logits of the teacher model
+    temp: temperature value
+    
+    return: loss value
+    '''
     g = F.log_softmax(out/temp)
     f = sm(batch_logits/temp)    
     return kl(g, f)
@@ -49,6 +67,15 @@ def distill(out, batch_logits, temp):
 crit = t.nn.CrossEntropyLoss()
 
 def param_loss(batch,model,h):
+    '''
+    Counts the full loss value
+    
+    batch: current batch
+    model: torch model
+    h: metaparameters
+    
+    return: loss
+    '''
     x,y,batch_logits = batch    
     lambda1,temp = h
     lambda2 = 1.0 - lambda1
@@ -73,6 +100,14 @@ def param_loss(batch,model,h):
 
 
 def hyperparam_loss(batch, model):
+    '''
+    Counts classification loss
+    
+    batch: current batch
+    model: torch model
+    
+    return: loss
+    '''
     x,y, te = batch
     out = model(x)
     student_loss = crit(out/te, y)            
@@ -80,6 +115,20 @@ def hyperparam_loss(batch, model):
 
 
 def net_training(epoch_num, x_net_train, y_net_train, x_net_test, y_net_test, order, seed=42, lr0=1.0):
+    '''
+    Teacher network training on synthetic dataset
+    
+    epoch_num: number of epochs
+    x_net_train: train features
+    y_net_train: train labels
+    x_net_test: test featuers
+    y_net_test: test labels
+    order: network parameter
+    seed: random seed
+    lr0: initial learning rate
+    
+    return:
+    '''
     np.random.seed(seed)
     t.manual_seed(seed)
     
@@ -102,6 +151,27 @@ def net_training(epoch_num, x_net_train, y_net_train, x_net_test, y_net_test, or
 
 #mode={'distil', 'random'}
 def synthetic_base(exp_ver, run_num, epoch_num, start_lambda1, start_temp, filename, order, teacher, x_train, y_train, x_test, y_test, lr0=1.0, mode='distil', seed=42):
+    '''
+    Basic experiment on synthetic dataset
+    
+    exp_ver: experiment version
+    run_num: number of reruns
+    epoch_num: number of epochs
+    start_lambda1: initial lambda1 value
+    start_temp: initial temperature value
+    filename: path to file where logs will be stored
+    order: network parameter
+    teacher: teacher network
+    x_train: train features
+    y_train: train labels
+    x_test: test featuers
+    y_test: test labels
+    mode: 'distil', 'random'
+    seed: random seed
+    lr0: initial learning rate
+    
+    return:
+    '''
     np.random.seed(seed)
     t.manual_seed(seed)
     
@@ -155,6 +225,28 @@ def synthetic_base(exp_ver, run_num, epoch_num, start_lambda1, start_temp, filen
 #             (epoch_size3, train_splines_every_epoch3),
 #             ...]
 def synthetic_opt(exp_ver, run_num, epoch_num, filename, teacher, x_train, y_train, x_test, y_test, alg_pars, lambdas = None, lr0 = 1e-3, lr = 1.0, clip_grad = 10e-3, mode='opt', seed=42):
+    '''
+    Experiments on synthetic dataset with optimization 
+    
+    exp_ver: experiment version
+    run_num: number of reruns
+    epoch_num: number of epochs
+    filename: path to file where logs will be stored
+    teacher: teacher network
+    x_train: train features
+    y_train: train labels
+    x_test: test featuers
+    y_test: test labels
+    alg_pars: an array of tuples of two parameters of the algorithm
+    lambdas: initial meatparameter values
+    lr0: initial learning rate
+    lr: scheduler parameter
+    clip_grad: gradient norm
+    mode: 'opt', 'splines'
+    seed: random seed
+    
+    return: maximum value of validation accuracy if hyperopt is used, else None
+    '''
     np.random.seed(seed)
     t.manual_seed(seed)
     
@@ -327,16 +419,33 @@ def synthetic_opt(exp_ver, run_num, epoch_num, filename, teacher, x_train, y_tra
                     out.write(json.dumps({'results':internal_results, 'version': exp_ver})+'\n')
             else:
                  # inner function for hyperopt optimization
-                 return ([res['accuracy'] for res in internal_results][-1])
+                return ([res['accuracy'] for res in internal_results][-1])
 
 
 def open_data_json(path):
+    '''
+    Opens log files
+    
+    path: path to file
+    return: data in numpy dataset
+    '''
     with open(path, "r") as read_file:
         data = [json.loads(line) for line in read_file]
     return data
 
 
 def plot_data_params(data, s, label, color, sign):
+    '''
+    Plot selected data parameters through iterations
+    
+    data: array with llog data
+    s: metaparameter name str
+    label: plot label
+    color: color of the plot
+    sign: plot marker
+    
+    return:
+    '''
 #     e = np.array([data[0][i][0] for i in range(len(data[0]))])
 #     par = np.array([subdata[i][s] for i in range(len(data[0])) for subdata in data]).reshape(e.shape[0], -1)
 #     plt.plot(e, par.mean(1), '-'+sign, color=color, label=label)
@@ -348,6 +457,29 @@ def plot_data_params(data, s, label, color, sign):
     
     
 def synthetic_with_hyperopt(exp_ver, run_num, epoch_num, filename, teacher, x_train, y_train, x_test, y_test, alg_pars, lambdas = None, lr0 = 1e-3, lr = 1.0, clip_grad = 10e-3, mode='opt', seed=42, trial_num=5):
+    '''
+    Inner hyperopt optimization function
+    
+    exp_ver: experiment version
+    run_num: number of reruns
+    epoch_num: number of epochs
+    filename: path to file where logs will be stored
+    alg_pars: an array of tuples of two parameters of the algorithm
+    lambdas: initial meatparameter values
+    teacher: teacher network
+    x_train: train features
+    y_train: train labels
+    x_test: test featuers
+    y_test: test labels
+    trial_num: number of reruns
+    lr0: initial lr
+    lr: scheduler parameter
+    clip_grad: gradient norm
+    mode: 'opt', 'splines'
+    seed: random seed
+    
+    return:
+    '''
     np.random.seed(42)
     t.manual_seed(42)
 

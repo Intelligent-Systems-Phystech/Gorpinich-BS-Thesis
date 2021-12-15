@@ -14,6 +14,14 @@ from fashionmnist_net import *
 device = 'cuda' if t.cuda.is_available() else 'cpu'
 
 def accuracy(student, t_load):
+    '''
+    Counts accuracy score
+    
+    student: student model
+    t_load: torch loader
+    
+    return: accuracy score
+    '''
     student.eval()
     total = 0 
     correct = 0
@@ -32,6 +40,15 @@ kl = nn.KLDivLoss(reduction='batchmean')
 sm = nn.Softmax(dim=1)
 
 def distill(out, batch_logits, temp):
+    '''
+    Counts the distillation term of loss function on a current batch
+    
+    out: output of the student model
+    batch_logits: logits of the teacher model
+    temp: temperature value
+    
+    return: loss value
+    '''
     g = sm(out/temp)
     f = F.log_softmax(batch_logits/temp)    
     return kl(f, g)
@@ -42,6 +59,15 @@ crit = nn.CrossEntropyLoss()
 # определяем функцию потерь как замкнутую относительно аргументов функцию
 # нужно для подсчета градиентов гиперпараметров по двухуровневой оптимизации
 def param_loss(batch,model,h):
+    '''
+    Counts the full loss value
+    
+    batch: current batch
+    model: torch model
+    h: metaparameters
+    
+    return: loss
+    '''
     x,y,batch_logits = batch    
     lambda1,lambda2,temp = h
     out = model(x)
@@ -51,6 +77,15 @@ def param_loss(batch,model,h):
     return loss
 
 def param_loss_with_reparametrization(batch,model,h):
+    '''
+    Counts loss with reparametrization
+    
+    batch: current batch
+    model: torch model
+    h: metaparameters
+    
+    return: loss
+    '''
     x,y,batch_logits = batch    
     lambda1,lambda2,temp = h
     out = model(x)
@@ -66,6 +101,14 @@ def param_loss_with_reparametrization(batch,model,h):
 # определяем функцию валидационную функцию потерь как замкнутую относительно аргументов функцию
 # нужно для подсчета градиентов гиперпараметров по двухуровневой оптимизации
 def hyperparam_loss(batch, model):
+    '''
+    Counts classification loss
+    
+    batch: current batch
+    model: torch model
+    
+    return: loss
+    '''
     x,y = batch
     out = model(x)
     student_loss = crit(out, y)            
@@ -74,6 +117,26 @@ def hyperparam_loss(batch, model):
 
 # mode = {'nodistil', 'distil-1', 'distil-2', 'random'}
 def fashionmnist_base(exp_ver, run_num, epoch_num, start_lambda1, start_temp, filename, tr_load, t_load, validate_every_epoch, mode='nodistil'):
+    '''
+    Basic experiment on fashionmnist dataset
+    
+    exp_ver: experiment version
+    run_num: number of reruns
+    epoch_num: number of epochs
+    start_lambda1: initial lambda1 value
+    start_temp: initial temperature value
+    filename: path to file where logs will be stored
+    tr_load: train loader
+    t_load: test loader
+    validate_every_epoch: number of iterations between validation
+    class_num: number of classes
+    mode: 'nodistil', 'distil', 'random'
+    logits: teacher model logits
+    seed: random seed
+    lr0: initial learning rate
+    
+    return:
+    '''
     np.random.seed(42)
     t.manual_seed(42)
     
@@ -164,6 +227,30 @@ def fashionmnist_base(exp_ver, run_num, epoch_num, start_lambda1, start_temp, fi
             
 # mode = {'opt', 'splines', 'no-opt'}
 def fashionmnist_with_validation_set(exp_ver, run_num, epoch_num, filename, tr_s_epoch, m_e, tr_load, t_load, val_load, validate_every_epoch, lambdas = None,  lr = 1.0, clip_grad = 10e-3, mode='opt', no_tqdm = False):
+    '''
+    Experiments on fashionmnist dataset with validation
+    
+    exp_ver: experiment version
+    run_num: number of reruns
+    epoch_num: number of epochs
+    filename: path to file where logs will be stored
+    alg_pars: an array of tuples of two parameters of the algorithm
+    tr_load: train loader
+    t_load: test loader
+    val_load: validation loader
+    validate_every_epoch: number of iterations between validation
+    class_num: number of classes
+    lambdas: initial meatparameter values
+    lr0: initial learning rate
+    lr: scheduler parameter
+    clip_grad: gradient norm
+    mode: 'opt', 'splines', 'no-opt'
+    no_tqdm: whether to use tqdm
+    seed: random seed
+    logits: teacher model logits
+    
+    return: maximum value of validation accuracy if hyperopt is used, else None
+    '''
     np.random.seed(42)
     t.manual_seed(42)
     
@@ -301,6 +388,24 @@ def fashionmnist_with_validation_set(exp_ver, run_num, epoch_num, filename, tr_s
             
 
 def fashionmnist_with_hyperopt(exp_ver, run_num, epoch_num, filename, tr_s_epoch, m_e, tr_load, t_load, val_load, validate_every_epoch, trial_num):
+    '''
+    Inner hyperopt optimization function
+    
+    exp_ver: experiment version
+    run_num: number of reruns
+    epoch_num: number of epochs
+    filename: path to file where logs will be stored
+    alg_pars: an array of tuples of two parameters of the algorithm
+    tr_load: train loader
+    t_load: test loader
+    val_load: validation loader
+    validate_every_epoch: number of iterations between validation
+    trial_num: number of reruns
+    lr0: initial lr
+    logits: teacher model logits
+    
+    return:
+    '''
     np.random.seed(42)
     t.manual_seed(42)
 
@@ -319,12 +424,29 @@ def fashionmnist_with_hyperopt(exp_ver, run_num, epoch_num, filename, tr_s_epoch
     
 
 def open_data_json(path):
+    '''
+    Opens log files
+    
+    path: path to file
+    return: data in numpy dataset
+    '''
     with open(path, "r") as read_file:
         data = [json.loads(line) for line in read_file]
     return data
 
 
 def plot_data_params(data, s, label, color, sign):
+    '''
+    Plot selected data parameters through iterations
+    
+    data: array with llog data
+    s: metaparameter name str
+    label: plot label
+    color: color of the plot
+    sign: plot marker
+    
+    return:
+    '''
     e = np.array([data[2]['results'][i]['epoch'] for i in range(len(data[2]['results']))])
     par = np.array([subdata['results'][i][s] for i in range(len(data[0]['results'])) for subdata in data]).reshape(e.shape[0], -1)
     plt.plot(e, par.mean(1), '-'+sign, color=color, label=label)
