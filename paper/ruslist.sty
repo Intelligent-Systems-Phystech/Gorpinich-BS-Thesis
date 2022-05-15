@@ -1,0 +1,214 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% `ruslist.sty' Correction of lists according to Russian rules
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}[1998/12/01]
+\ProvidesPackage{ruslist}[2003/01/11 alpha 2.2]
+\PackageWarningNoLine{ruslist}{This package comes with absolutely no warranty!}
+
+
+%% Ordinary list with --- items
+\newlength{\itemitemsep}
+\setlength{\itemitemsep}{0mm}
+\newenvironment{itemlist}[1][---]{%
+ \begin{list}{#1}{%
+  \settowidth{\labelwidth}{#1}
+  \settowidth{\labelsep}{~}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\itemindent}{1.5em}
+  \addtolength{\itemindent}{\labelwidth}
+  \addtolength{\itemindent}{\labelsep}
+  \setlength{\listparindent}{\parindent}
+%
+  \setlength{\itemsep}{\itemitemsep}
+  \setlength{\parsep}{0mm}
+  \setlength{\topsep}{0mm}
+  \setlength{\partopsep}{0mm}
+  }
+ }
+{\end{list}}
+
+% Simple list --- sequence of paragraphs
+\newlength{\simpleitemsep}
+\setlength{\simpleitemsep}{0mm}
+\newenvironment{simplelist}{%
+ \begin{list}{}{%
+  \setlength{\labelwidth}{0pt}
+  \setlength{\labelsep}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\itemindent}{\parindent}
+  \addtolength{\itemindent}{\labelwidth}
+  \addtolength{\itemindent}{\labelsep}
+  \setlength{\listparindent}{\parindent}
+%
+  \setlength{\itemsep}{\simpleitemsep}
+  \setlength{\parsep}{0mm}
+  \setlength{\topsep}{0mm}
+  \setlength{\partopsep}{0mm}
+  }
+ }
+{\end{list}}
+
+%% List enumerated by arabic numbers
+\newlength{\enumitemsep}
+\setlength{\enumitemsep}{0mm}
+\newcounter{enumlisti}
+\newcommand{\enumlistlabelfont}{\rm}
+\def\theenumlisti{\arabic{enumlisti}}
+\newenvironment{enumlist}[1][)]{%
+ \begin{list}{\raggedright{\enumlistlabelfont\theenumlisti#1}}{%
+  \setcounter{enumlisti}{0}
+  \settowidth{\labelwidth}{\enumlistlabelfont\arabic{enumlisti}#1}
+  \settowidth{\labelsep}{~}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\itemindent}{\parindent}
+  \addtolength{\itemindent}{\labelwidth}
+  \addtolength{\itemindent}{\labelsep}
+  \setlength{\listparindent}{\parindent}
+%
+  \setlength{\itemsep}{\enumitemsep}
+  \setlength{\parsep}{0mm}
+  \setlength{\topsep}{0mm}
+  \setlength{\partopsep}{0mm}
+  \usecounter{enumlisti}
+  }
+ }
+{\end{list}}
+
+
+%% List enumerated by roman numbers
+\newcounter{romlisti}
+\def\theromlisti{\roman{romlisti}}
+\newcommand{\romlistlabelfont}{\rm}
+\newenvironment{romlist}[1][(]{%
+ \begin{list}{\raggedright{\romlistlabelfont#1\theromlisti)}}{%
+  \setcounter{romlisti}{0}
+  \settowidth{\labelwidth}{\romlistlabelfont#1\arabic{romlisti})}
+  \settowidth{\labelsep}{~}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\itemindent}{\parindent}
+  \addtolength{\itemindent}{\labelwidth}
+  \addtolength{\itemindent}{\labelsep}
+  \setlength{\listparindent}{\parindent}
+%
+  \setlength{\itemsep}{0mm}
+  \setlength{\parsep}{0mm}
+  \setlength{\topsep}{0mm}
+  \setlength{\partopsep}{0mm}
+  \usecounter{romlisti}
+  }
+ }
+{\end{list}}
+
+
+%% List enumerated by russian letters
+\newcounter{ruslisti}
+\def\theruslisti{\asbuk{ruslisti}}
+\newcommand{\ruslistlabelfont}{\rm}
+\newenvironment{ruslist}[1][)]{%
+ \begin{list}{\raggedright{\ruslistlabelfont\theruslisti#1}}{%
+  \setcounter{ruslisti}{0}
+  \settowidth{\labelwidth}{\ruslistlabelfont\asbuk{ruslisti}#1}
+  \settowidth{\labelsep}{~}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\itemindent}{\parindent}
+  \addtolength{\itemindent}{\labelwidth}
+  \addtolength{\itemindent}{\labelsep}
+  \setlength{\listparindent}{\parindent}
+%
+  \setlength{\itemsep}{0mm}
+  \setlength{\parsep}{0mm}
+  \setlength{\topsep}{0mm}
+  \setlength{\partopsep}{0mm}
+  \usecounter{ruslisti}
+  }
+ }
+{\end{list}}
+
+%% List enumerated by latin letters
+\newcounter{latlisti}
+\def\thelatlisti{\alph{latlisti}}
+\newcommand{\latlistlabelfont}{\rm}
+\newenvironment{latlist}[1][)]{%
+ \begin{list}{\raggedright{\latlistlabelfont\thelatlisti#1}}{%
+  \setcounter{latlisti}{0}
+  \settowidth{\labelwidth}{\latlistlabelfont\alph{latlisti}#1}
+  \settowidth{\labelsep}{~}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\itemindent}{\parindent}
+  \addtolength{\itemindent}{\labelwidth}
+  \addtolength{\itemindent}{\labelsep}
+  \setlength{\listparindent}{\parindent}
+%
+  \setlength{\itemsep}{0mm}
+  \setlength{\parsep}{0mm}
+  \setlength{\topsep}{0mm}
+  \setlength{\partopsep}{0mm}
+  \usecounter{latlisti}
+  }
+ }
+{\end{list}}
+
+
+%% problems' list enumerated by boldfaced arabic numbers
+\newcounter{issimple}
+\setcounter{issimple}{0}
+\newcommand{\problistlabelfont}{\bf}
+\def\simplemark{\hspace*{-0.2em}%
+\ifnum\value{issimple}=1 ${}^{{\mathbf\circ}}$\fi\hspace*{.2em}}
+\newcounter{problisti}
+\def\theproblisti{\arabic{problisti}}
+\def\probref#1{{\problistlabelfont\ref{#1}}}
+
+\newlength{\probitemsep}
+\setlength{\probitemsep}{2mm}
+
+\newenvironment{problist}{%
+ \begin{list}{\raggedright{\problistlabelfont\theproblisti.\simplemark}}{%
+  \setcounter{problisti}{0}
+  \settowidth{\labelwidth}{\problistlabelfont\arabic{problisti}.\simplemark}%
+  \settowidth{\labelsep}{~}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\itemindent}{\parindent}
+  \addtolength{\itemindent}{\labelwidth}
+  \addtolength{\itemindent}{\labelsep}
+  \setlength{\listparindent}{\parindent}
+%
+  \setlength{\itemsep}{\probitemsep}
+  \setlength{\parsep}{0mm}
+  \setlength{\topsep}{0mm}
+  \setlength{\partopsep}{0mm}
+  \usecounter{problisti}
+  }
+ }
+{\end{list}} 
+
+\def\sitem{\setcounter{issimple}{1}\item\setcounter{issimple}{0}}   %\setcounter{issimple}{1}
+
+
+%% notationlist
+%% this enviro is useful when the first strings
+%% of items are not indented & not enumerated
+\newlength{\notationitemsep}
+\setlength{\notationitemsep}{0mm}
+\newenvironment{notationlist}{%
+ \begin{list}{}{%
+  \setlength{\labelwidth}{0pt}
+  \setlength{\labelsep}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\itemindent}{\parindent}
+  \addtolength{\itemindent}{\labelwidth}
+  \addtolength{\itemindent}{\labelsep}
+  \setlength{\listparindent}{\parindent}
+%
+  \setlength{\itemsep}{\notationitemsep}
+  \setlength{\parsep}{0mm}
+  \setlength{\topsep}{0mm}
+  \setlength{\partopsep}{0mm}
+  }
+ }
+{\end{list}}
+
+
+\endinput  
+
+

@@ -1,0 +1,699 @@
+\documentclass[12pt, aspectratio=169]{beamer}
+\beamertemplatenavigationsymbolsempty
+\usecolortheme{beaver}
+\setbeamertemplate{blocks}[rounded=true, shadow=true]
+\setbeamersize{text margin left=5pt,text margin right=5pt}
+\setbeamertemplate{footline}[page number]
+\input{slides_rus/math_symbols_slides}
+%
+\usepackage[utf8]{inputenc}
+\usepackage[english, russian]{babel}
+\usepackage{amssymb,amsfonts,amsmath,mathtext}
+\usepackage{subfig}
+\usepackage[all]{xy} % xy package for diagrams
+\usepackage{array}
+\usepackage{multicol}% many columns in slide
+\usepackage{hyperref}% urls
+\usepackage{hhline}%tables
+\usepackage{tabularx}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage[style=numeric,sorting=none]{biblatex}
+\usepackage{appendixnumberbeamer}
+% Your figures are here:
+%\graphicspath{ {fig/} {../fig/} }
+
+%----------------------------------------------------------------------------------------------------------
+\addbibresource{slides_bibliography.bib}
+\nocite{*}
+\title[\hbox to 56mm{Оптимизация метапараметров в задаче дистилляции знаний}]{Оптимизация метапараметров в задаче дистилляции знаний}
+\author[Горпинич~М., Бахтеев~О.\,Ю., Стрижов~В.\,В.]{Горпинич~М., Бахтеев~О.\,Ю., Стрижов~В.\,В.}
+% \begingroup
+% \fontsize{8pt}{10pt}\selectfont
+\institute{\fontsize{11}{14}\selectfont Московский физико-технический институт (государственный университет)}
+% \endgroup
+\date{\footnotesize
+% \par\smallskip\emph{Курс:} Автоматизация научных исследований\par (практика, В.\,В.~Стрижов)/Группа 874
+% \par\smallskip\emph{Expert:} V.\,V.~Strijov
+% \par\smallskip\emph{:} О.\,Ю.~Bakhteev
+% \par\smallskip M.~Gorpinich, V.\,V.~Strijov, O.\,Yu.~Bakhteev
+\par\bigskip\small 2021}
+%----------------------------------------------------------------------------------------------------------
+\begin{document}
+%----------------------------------------------------------------------------------------------------------
+\begin{frame}
+\thispagestyle{empty}
+\maketitle
+\end{frame}
+%-----------------------------------------------------------------------------------------------------
+
+\begin{frame}{Дистилляция знаний}
+\begin{block}{Цель}
+    Предложить метод оптимизации метапараметров для задачи дистилляции. Метапараметры --- это параметры оптимизационной задачи. 
+    
+\end{block}
+\begin{block}{Проблема}
+    Задача подбора метапараметров является вычислительно затратной. Однако, правильное назначение метапараметров значительно повышает качество модели.
+\end{block}
+% \begin{block}{Метод исследования} 
+\begin{block}{Решение}
+    Рассмотрим двухуровневую задачу оптимизации. Данная задача решается градиентными методами. Для уменьшения вычислительной сложности задачи значения метапараметров предсказываются с помощью линейных моделей.
+\end{block}
+\end{frame}
+
+\begin{frame}{Ключевая идея метода}
+    \begin{figure}
+    \caption*{}
+    \vspace{-1.26 cm}
+    \includegraphics[width=0.37\textwidth]{trajectory_rus__.pdf}
+\end{figure}
+
+\vspace{-0.25 cm}
+
+\fontsize{11}{5}\selectfont
+Метапараметры задают значение функции потерь для рассмотренной модели:
+
+$$\cL_{\text{train}} = \lambda_1\cL_{\text{student}} + (1-\lambda_1)\cL_{\text{teacher}}.$$ 
+
+Вместо непосредственной оптимизации значений метапараметров анализируется поведение траектории оптимизации, которая предсказывается с помощью линейных моделей.
+
+\end{frame}
+
+\begin{frame}{Постановка задачи}
+
+    % {\color{red}Метапараметры} \boldsymbol{\lambda} являются метапараметрами в задаче дистилляции.
+    % А именно, коэффициентами слагаемых в функции потерь и температурой:
+    % $$\boldsymbol{\lambda} = [\lambda_1, T].$$
+    % Температура является множителем логитов моделей в функции softmax.
+    
+    % \vspace{0.2 cm}
+    {\color{red}Метапараметрами} \boldsymbol{\lambda} в задаче дистилляции являются коэффициенты слагаемых в функции потерь и температура:
+    $$\boldsymbol{\lambda} = [\lambda_1, T].$$
+    Температура является множителем логитов моделей в функции softmax.
+    
+    {\color{red}Дистилляция знаний} является задачей оптимизации параметров модели. Она учитывает:
+    \begin{enumerate}
+        \item информацию исходной выборки;
+        \item информацию, содержащуюся в модели-учителе.
+    \end{enumerate}
+    
+    \vspace{0.2 cm}
+    
+    {\color{red}Модель-учитель} имеет более сложную структуру. Она обучается на исходной выборке. {\color{red}Модель-ученик} имеет более простую структуру. Она оптимизируется путем переноса знаний модели-учителя.
+    
+\end{frame}
+%-----------------------------------------------------------------------------------------------------
+
+% \begin{frame}{Model parameter optimization using knowledge distillation}
+
+% Рассматривается задача дистилляции модели. Будем корректировать траекторию оптимизации на основе двухуровневой задачи оптимизации:
+
+% $$ \hat{\bh} = \argmax\limits_{\bh \in \bbR^2} \sum\limits_{(\bx, y) \in \fD_\text{val}}\sum\limits_{k=1}^{K}y^k\log \bg(\bx, \bw)|_{T=1} $$
+% $$ \hat{\bw} = \argmax\limits_{\bw \in \bbR^s} (1-\lambda)\sum\limits_{(\bx, y) \in \fD_\text{train}}\sum\limits_{k=1}^{K}y^k\log \bg(\bx, \bw)|_{T=1} + \lambda\sum\limits_{(\bx, y) \in \fD_\text{train}}\sum\limits_{k=1}^{K}\bff(\bx)|_{T=T_0}\log \bg(\bx, \bw)|_{T=T_0} $$
+
+% где $\bh = [\lambda, T_0]$ --- параметры дистилляционного слагаемого.
+
+% \begin{columns}[c]
+% \column{0.5\textwidth}
+% Рассматривается задача дистилляции модели. Будем корректировать траекторию оптимизации на основе двухуровневой задачи оптимизации:
+
+% $$ \hat{\bh} = \argmax\limits_{\bh \in \bbR^2} \cL_\text{val}(\hat{\bw}, \bh) $$
+% $$ \hat{\bw} = \argmin\limits_{\bw \in \bbR^s} \cL_\text{train}(\bw, \bh) $$
+
+% где $\bh$ --- параметры дистилляционного слагаемого.
+% \column{0.5\textwidth}
+% $$\cL_\text{train}(\bw, \bh) = -\sum\limits_{(\bx, y) \in \fD_\text{train}}\sum\limits_{k=1}^{K}y^k\log \bg(\bx, \bw)|_{T=1} $$$$- \lambda\sum\limits_{(\bx, y) \in \fD_\text{train}}\sum\limits_{k=1}^{K}\bff(\bx)|_{T=T_0}\log \bg(\bx, \bw)|_{T=T_0}$$
+
+% $$\cL_\text{val}(\bw, \bh) = \sum\limits_{(\bx, y) \in \fD_\text{val}}\sum\limits_{k=1}^{K}y^k\log \bg(\bx, \bw)|_{T=1}$$
+% \end{columns}
+
+% Оптимизация гиперпараметров:
+
+% $$\bh^\prime = \bh - \gamma_{\bh}\nabla_{\bh}\cL_\text{val}(\bw - \gamma\nabla\cL_\text{train}(\bw, \bh), \bh)$$
+
+% Назовем {\color{red}дистилляцией знаний} задачу оптимизации параметров модели, при которой учитывается информация, содержащаяся в выборке и в сторонней модели (модели-учителе).
+
+% \centering
+% \begin{columns}[c]
+% \column{0.5\textwidth}
+% \centering
+% \includegraphics[width=\textwidth]{slides_eng/scatter_temp_beta2_eng.pdf}
+% \hspace{-2 cm}
+% \column{0.5\textwidth}
+% $T$ is a temperature, $\lambda_1$ is a  fraction of the likelihood of the initial dataset in the loss function
+
+% \end{columns}
+% \end{frame}
+
+
+
+
+
+%----------------------------------------------------------------------------------------------------------
+\begin{frame}{Постановка задачи дистилляции}
+\begin{block}{Дана выборка}
+\vspace{-0.5 cm}
+
+$$\fD = \{(\bx_i, y_i)\}_{i=1}^{m},\; \bx_i \in \bbR^n,\qquad y_i \in \bbY = \{1, \dots, K\},\qquad \fD = \fD_\text{train} \sqcup \fD_\text{val}.$$
+\end{block}
+
+\vspace{-0.3 cm}
+$\bff$ --- фиксированная модель-учитель, $\bg$ --- модель-ученик.
+
+\vspace{0.5 cm} 
+\textbf{Определение 1.}
+Пусть функция~$D: \bbR^s \to \bbR_{+}$ определяет расстояние между моделью-учеником~$\bg$ и моделью-учителем~$\bff$. Назовем $D$-дистилляцией модели-ученика такую задачу оптимизации параметров модели ученика, которая минимизирует функцию~$D$.
+
+\vspace{0.5 cm}
+\fontsize{11}{5}\selectfont
+
+\textbf{Утверждение 1.}
+Если~$\lambda_1 = 0$, то минимизируется функция потерь, являющаяся $D$-дистилляцией с $D = D_{KL}\left(\sigma\left(\bff/T\right), \sigma\left(\bg/T\right)\right)$, где $\sigma$ --- функция softmax.
+
+% Если~$\lambda_1 = 0$, то:
+% \vspace{-0.5 cm}
+% \fontsize{9}{5}\selectfont
+% \begin{multline*}
+%     \cL_\text{train}(\bw, \boldsymbol{\lambda}) = \sum\limits_{(\bx, y) \in \fD_\text{train}}\sum\limits_{k=1}^{K}\frac{e^{\bff(\bx)_k/T}}{\sum\limits_{j=1}^{K}e^{\bff(\bx)_j/T}}\log \frac{e^{\bg(\bx, \bw)_k/T}}{\sum\limits_{j=1}^{K}e^{\bg(\bx, \bw)_j/T}} = D_{KL}\left(\sigma(\bff(\bx)/T), \sigma(\bg(\bx, \bw)/T)\right).
+% \end{multline*}
+% % \vspace{-0.2 cm}
+% \fontsize{11}{5}\selectfont
+% Функция $D_{KL}\left(\sigma\left(\bff/T\right), \sigma\left(\bg/T\right)\right)$ определяет расстояние между логитами модели $\bff$ и модели $\bg$. Из этого следует, что условие леммы удовлетворяет определению $D$-дистилляции.
+\end{frame}
+
+\begin{frame}{Функции потерь}
+\fontsize{10}{5}\selectfont
+\begin{block}{Функция потерь на обучении}
+\vspace{-0.7 cm}
+\fontsize{10}{5}\selectfont
+\begin{multline*}
+    \cL_\text{train}(\bw, \boldsymbol{\lambda}) = -\lambda_1\sum\limits_{(\bx, y) \in \fD_\text{train}}\underbrace{\sum\limits_{k=1}^{K}y^k\log \frac{e^{\bg(\bx, \bw)_k}}{\sum\limits_{j=1}^{K}e^{\bg(\bx, \bw)_j}}}_{\text{исходная функция потерь}} - (1 - \lambda_1)\sum\limits_{(\bx, y) \in \fD_\text{train}}\underbrace{\sum\limits_{k=1}^{K}\frac{e^{\bff(\bx)_k/T}}{\sum\limits_{j=1}^{K}e^{\bff(\bx)_j/T}}\log \frac{e^{\bg(\bx, \bw)_k/T}}{\sum\limits_{j=1}^{K}e^{\bg(\bx, \bw)_j/T}}}_{\text{слагаемое дистилляции}},
+\end{multline*}
+\end{block}
+\vspace{-0.5 cm}
+\fontsize{10}{5}\selectfont
+\begin{block}{Валидационная функция потерь}
+\vspace{-0.5 cm}
+\fontsize{10}{5}\selectfont
+\begin{equation*} \label{eq:l_val}
+     \cL_\text{val}(\bw, \boldsymbol{\lambda}) = - \sum\limits_{(\bx, y) \in \fD_\text{val}}\sum\limits_{k=1}^{K}y^k\log \frac{e^{\bg(\bx, \bw)_k/T_\text{val}}}{\sum\limits_{j=1}^Ke^{\bg(\bx, \bw)_j/T_\text{val}}}
+\end{equation*}
+\end{block}
+\vspace{-0.2 cm}
+\fontsize{10}{5}\selectfont
+Множество метапараметров:
+\vspace{-0.2 cm}
+\fontsize{10}{5}\selectfont
+$$\boldsymbol{\lambda} = [\lambda_1, T]$$
+\fontsize{10}{5}\selectfont
+Задача оптимизации:
+\vspace{-0.2 cm}
+\fontsize{10}{5}\selectfont
+
+\begin{equation*}
+    \hat{\boldsymbol{\lambda}} = \arg\min\limits_{\boldsymbol{\lambda} \in \bbR^2} \cL_\text{val}(\hat{\bw}, \boldsymbol{\lambda}),
+    \label{eq:opt_hyp}
+\end{equation*}
+
+\begin{equation*}
+    \hat{\bw} = \arg\min\limits_{\bw \in \bbR^s} \cL_\text{train}(\bw, \boldsymbol{\lambda}).
+\end{equation*}
+\end{frame}
+
+% \begin{frame}{Частный случай D-дистилляции}
+% \fontsize{10}{5}\selectfont
+
+% \vspace{-0.2 cm}
+% \fontsize{10}{5}\selectfont
+% \begin{multline*}
+% \lim_{t \to \infty} D_{KL}(\sigma(\bff(\bx)/T|_{T=T_0})_i, \sigma(\bg(\bx, \bw_t)/T|_{T=T_0})_i)\\=\min_{\bw^\prime_t \in \bbR^s} D_{KL}(\sigma(\bff(\bx)/T|_{T=T_0})_i, \sigma(\bg(\bx, \bw^\prime_t)/T|_{T=T_0})_i)
+% \end{multline*}
+% \vspace{-0.2 cm}
+
+% where $\sigma$ is a softmax funcion. 
+% % \vspace{-0.2 cm}
+
+% We use the following inequality:
+% \vspace{-0.2 cm}
+% \fontsize{10}{5}\selectfont
+% $$D_{KL}(\sigma(\bff(\bx)/T|_{T=T_0})_i, \sigma(\bg(\bx, \bw^\prime_{k+1}))) \le D_{KL}(\sigma(\bff(\bx)/T|_{T=T_0})_i, \sigma(\bg(\bx, \bw^\prime_k)/T|_{T=T_0})_i)$$
+% \vspace{-0.2 cm}
+
+% We also have
+% % \vspace{-0.2 cm}
+% \fontsize{10}{5}\selectfont
+% $D_{KL}(\sigma(\bff(\bx)/T|_{T=T_0})_i, \sigma(\bg(\bx, \bw)_T|_{T=T_0})_i) \ge 0.$
+% % \vspace{-0.2 cm}
+
+% Then
+% \vspace{-0.2 cm}
+% \fontsize{10}{5}\selectfont
+% $$\lim_{t \to \infty} D_{KL}(\sigma(\bff(\bx)/T|_{T=T_0})_i, \sigma(\bg(\bx, \bw_t)/T|_{T=T_0})_i)=\min_{\bw^\prime_t \in \bbR^s} D_{KL}(\sigma(\bff(\bx)/T|_{T=T_0})_i, \sigma(\bg(\bx, \bw^\prime_t)_T|_{T=T_0})_i)$$
+% \vspace{-0.2 cm}
+% So $D_{KL}(\sigma(\bff/T|_{T=T_0})_i, \sigma(\bg/T|_{T=T_0})_i)$ is a special case of $D$-distillation.
+
+% \end{frame}
+
+\begin{frame}{Градиентная оптимизация}
+
+\begin{columns}[c]
+\column{0.7\textwidth}
+\fontsize{11}{5}\selectfont
+\textbf{Определение 2.} Назовем \emph{оператором оптимизации} алгоритм~$U$ выбора вектора параметров~$\bw^\prime$ с использованием параметров на предыдущем шаге~$\bw$:
+\vspace{-0.2 cm}
+\fontsize{10}{5}\selectfont
+\begin{equation*}
+    \bw^\prime = U(\bw).
+\end{equation*}
+
+\fontsize{11}{5}\selectfont
+Оптимизируем параметры~$\bw$ используя~$\eta$ шагов оптимизации:
+\vspace{-0.2 cm}
+\fontsize{10}{5}\selectfont
+\begin{equation*}
+    \hat{\bw} = U \circ U \circ \dots \circ U(\bw_0, \boldsymbol{\lambda}) = U^\eta(\bw_0, \boldsymbol{\lambda}),
+\end{equation*}
+
+\noindent
+\fontsize{11}{5}\selectfont
+где~$\bw_0$ --- начальное значение вектора параметров~$\bw$.
+\fontsize{11}{5}\selectfont
+Переопределим задачу оптимизации используя определение оператора~$U$:
+\vspace{-0.2 cm}
+$$\hat{\boldsymbol{\lambda}} = \argmax\limits_{\boldsymbol{\lambda} \in \bbR^3} \cL_\text{val}\bigl(U^\eta(\bw_0, \boldsymbol{\lambda})\bigr), \qquad U(\bw, \boldsymbol{\lambda}) = \bw - \gamma\nabla\cL_\text{train}(\bw, \boldsymbol{\lambda}).$$
+\fontsize{11}{5}\selectfont
+Будем обновлять метапараметры последовательно по правилу:
+\vspace{-0.2 cm}
+\fontsize{10}{5}\selectfont
+\begin{equation*}
+\boldsymbol{\lambda}^\prime = \boldsymbol{\lambda} - \gamma_{\boldsymbol{\lambda}}\nabla_{\boldsymbol{\lambda}}\cL_\text{val}(U(\bw, \boldsymbol{\lambda}), \boldsymbol{\lambda}) = \boldsymbol{\lambda} - \gamma_{\boldsymbol{\lambda}}\nabla_{\boldsymbol{\lambda}}\cL_\text{val}(\bw - \gamma\nabla\cL_\text{train}(\bw, \boldsymbol{\lambda}), \boldsymbol{\lambda}).
+\label{eq:hyp_alg}
+\end{equation*}
+
+\column{0.25\textwidth}
+\fontsize{12}{10}\selectfont
+{\color{red}Гипотеза}: в случае градиентной оптимизации траектория оптимизации может быть предсказана локально линейными моделями:
+% \vspace{-0.2 cm}
+\fontsize{12}{10}\selectfont
+$$\boldsymbol{\lambda}^\prime = 
+     \boldsymbol{\lambda} + \bc^{\top}\begin{pmatrix}z\\1\end{pmatrix},$$
+% \vspace{-0.2 cm}
+\fontsize{12}{10}\selectfont
+где $\bc$ --- вектор параметров линейной модели.
+\end{columns}
+% \begin{equation}
+%     \nabla \boldsymbol{\lambda}^\prime = 
+%     \nabla \boldsymbol{\lambda} + \bw^{\T}\begin{pmatrix}j\\1\end{pmatrix}
+% \end{equation}
+% \begin{equation}
+%     \boldsymbol{\lambda}^{\prime\prime} = \begin{pmatrix}1\\1\\10\end{pmatrix}^{\T} \sigma(\boldsymbol{\lambda}^\prime)
+% \end{equation}
+
+\end{frame}
+
+\begin{frame}{Итоговый алгоритм}
+    \begin{figure}
+    \vspace{-0.5 cm}
+\begin{algorithm}[H]
+\caption{Оптимизация метапараметров}
+ \begin{algorithmic}[1]
+
+ %\renewcommand{\algorithmicrequire}{\mathbf{Input:}}
+ %\renewcommand{\algorithmicensure}{\mathbf{Output:}}
+ \REQUIRE число $e_1$ итераций с использованием градиентной оптимизации
+ \REQUIRE число $e_2$ итераций с предсказанием $\boldsymbol{\lambda}$ линейными моделями
+ %\REQUIRE in
+ %\ENSURE  out
+  \WHILE {нет сходимости}
+  \STATE Оптимизация $\boldsymbol{\lambda}$ и $\mathbf{w}$ на протяжении $e_1$ итераций, решая двухуровневую задачу
+  \STATE $\textbf{traj} = $траектория $(\nabla \boldsymbol{\lambda})$ изменяется во время оптимизации;
+  \STATE Положим $\mathbf{z} = [1,\dots,e_1]^\mathsf{T}$
+  \STATE Оптимизация $\mathbf{c}$ с помощью МНК: 
+  $$\hat{\mathbf{c}} = \argmin_{\mathbf{c} \in \mathbb{R}^2} ||\textbf{traj} - \mathbf{z}\cdot c_1 + c_2||_2^2$$
+  \STATE Оптимизация $\mathbf{w}$ и предсказание $\boldsymbol{\lambda}$ на протяжении $e_2$ итераций с помощью линейной модели с параметрами $\mathbf{c}$.
+  \ENDWHILE
+
+ \end{algorithmic}
+ \end{algorithm}
+ \vspace{-0.5 cm}
+ \caption*{Алгоритм для предложенного метода.}
+ \label{algo}
+
+ \end{figure}
+\end{frame}
+
+\begin{frame}{Корректность аппроксимации линейной моделью}
+
+\textbf{Теорема 1.} Если функция $\mathcal{L}_{\textnormal{train}}(\bw, \boldsymbol{\lambda})$ является гладкой и выпуклой, и ее Гессиан $\mathbf{H} = \nabla_{\bw}^2 \mathcal{L}_\textnormal{train}$ обратим и является единичной матрицей, $\mathbf{H} = \mathbf{I},$ а также если параметры $\bw$ равны $\bw^*$, где $\bw^*$ --- точка локального минимума для текущего значения $\boldsymbol{\lambda},$ тогда жадный алгоритм находит оптимальное решение двухуровневой задачи. Если существует область $\cD \in \bbR^2$ в пространстве метапараметров, такая что градиент метапараметров может быть аппроксимирован константой, то оптимизация является линейной по метапараметрам.
+
+\end{frame}
+
+% \begin{frame}{Градиентные методы оптимизации}
+
+
+% \end{frame}
+%----------------------------------------------------------------------------------------------------------
+
+%----------------------------------------------------------------------------------------------------------
+
+\begin{frame}{Постановка эксперимента}
+    
+% Test the hypothesis on the approximation of the regularization path by a linear model.
+
+\vspace{-0.35 cm}
+\begin{block}{Выборки}
+    Синтетическая выборка, CIFAR-10 (вся выборка и уменьшенная выборка), Fashion-MNIST
+\end{block}
+
+\vspace{-0.2 cm}
+\begin{block}{Методы оптимизации}
+\fontsize{11}{5}\selectfont
+\begin{enumerate}[{1)}]
+    \item оптимизация без дистилляции;
+    \item оптимизация со случайной инициализацией метапараметров. Метапараметры выбираются из равномерного распределения
+    \vspace{-0.3 cm}
+    $$\lambda_1 \sim \mathcal{U}(0;1), \quad T \sim \mathcal{U}(0.1, 10).$$
+    \vspace{-0.7 cm}
+    \item оптимизация с ``наивным'' назначением метапараметров:
+    \vspace{-0.3 cm}
+    $$\lambda_1 = 0.5, T = 1;$$
+    \vspace{-0.7 cm}
+    \item градиентная оптимизация;
+    \item hyperopt;
+    \item предложенный метод.
+\end{enumerate}
+\end{block}
+    
+\fontsize{11}{5}\selectfont
+\vspace{-0.1 cm}
+Внешний критерий качества:
+\vspace{-0.4 cm}
+\begin{equation*}
+    \text{accuracy} = \frac{1}{m}\sum\limits_{i=1}^m [\bg(\bx_i, \bw) = y_i].
+\end{equation*}
+    
+\end{frame}
+
+\begin{frame}{Эксперимент на синтетических данных}
+
+\begin{block}{Выборка}
+% \vspace{-1 cm}
+\fontsize{11}{5}\selectfont
+$$\fD = \{(\bx_i, y_i)\}_{i=1}^{m},\; x_{ij} \in \cN(0, 1),\qquad j=1, 2, \qquad x_{i3} = [\text{sign}(x_{i1})+\text{sign}(x_{i2})>0],$$
+$$y_i = \text{sign}(x_{i1} \cdot x_{i2}+\delta) \in \bbY.$$
+Размер выборки для модели-ученика существенно меньше размера выборки для модели-учителя.
+\vspace{-0.2 cm}
+\end{block}
+\begin{figure}
+    \fontsize{5}{5}\selectfont
+    \begin{minipage}[h]{0.3\linewidth}
+    \center{
+    \includegraphics[width=\linewidth]{ttrain.pdf}\\а)}
+    \end{minipage}
+    \begin{minipage}[h]{0.3\linewidth}
+    \center{
+    \includegraphics[width=\linewidth]{train.pdf}\\б)}
+    \end{minipage}
+    \begin{minipage}[h]{0.3\linewidth}
+    \center{
+    \includegraphics[width=\linewidth]{test.pdf}\\в)}
+    \end{minipage}
+    \vspace{-0.2 cm}
+    \caption*{\fontsize{8}{5}\selectfont
+    Визуализация выборки для а) модели-учителя; б) модели-ученика; в) тестовой выборки}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Настройка параметров алгоритма}
+
+    % \begin{figure}
+    % \begin{minipage}[h]{0.45\linewidth}
+    % \center{
+    % \includegraphics[width=\linewidth]{slides_eng/linear_epoch_size_eng.pdf}\\a)}
+    % \end{minipage}
+    % \begin{minipage}[h]{0.45\linewidth}
+    % \center{
+    % \includegraphics[width=\linewidth]{slides_eng/linear_train_splines_every_epoch_eng.pdf}\\b)}
+    % \end{minipage}
+    % \vspace{-0.2 cm}
+    % \caption*{\fontsize{10}{5}\selectfont
+    % Model accuracy with different a) epoch size; b) rerun periodicity}
+    % \end{figure}
+\fontsize{8}{5}\selectfont
+    \begin{figure}
+    \caption*{\fontsize{11}{5}\selectfont
+    Точность модели со значениями $e_1$ и $e_2$: а) $e_1 = e_2$; б) подбор $e_2$ при $e_1 = 10$.}
+    \vspace{-0.2 cm}
+    \begin{minipage}[h]{0.45\linewidth}
+    \center{
+    \includegraphics[width=\linewidth]{synth_mini_epoch_size_rus.pdf}\\(а)}
+    \end{minipage}
+    \begin{minipage}[h]{0.45\linewidth}
+    \center{
+    \includegraphics[width=\linewidth]{synth_period_rus.pdf}\\(б)}
+    \end{minipage}
+    
+    
+\end{figure}
+    
+    \fontsize{12}{8}\selectfont
+    Лучшая точность получена при $e_1 = e_2=10$.
+    
+\end{frame}
+
+% \begin{frame}{Выбор периодичности перезапусков}
+% График зависимости точности классификации от номера итерации при различном количестве перезапусков
+% \begin{figure}
+%     \includegraphics[width=0.55\textwidth]{linear_train_splines_every_epoch_eng.pdf}
+% \end{figure}
+    
+
+% \end{frame}
+
+% \begin{frame}{Meta-parameter update}
+% \fontsize{6}{5}\selectfont
+% \begin{figure}
+%     \caption*{\fontsize{10}{12}\selectfont
+%     Synthetic data, sequence of updated a) $\lambda_1$; b) $\lambda_2$; c) temperature}
+%     \vspace{-0.3 cm}
+%     \begin{minipage}[h]{0.325\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{beta1_iter_eng2.pdf}\\a)}
+%     \end{minipage}
+%     \begin{minipage}[h]{0.325\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{beta2_iter_eng2.pdf}\\b)}
+%     \end{minipage}
+%     \vspace{-0.2 cm}
+%     \begin{minipage}[h]{0.325\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{temp_iter_eng2.pdf}\\c)}
+%     \end{minipage}
+% \end{figure}
+% \end{frame}
+
+\begin{frame}{Сравение подходов к оптимизации}
+\begin{figure}
+    \caption*{Точность модели на синтетических данных}
+    \vspace{-1 cm}
+    \includegraphics[width=0.53\textwidth]{synth_accuracy_rus.pdf}
+\end{figure}
+Результаты, полученные с помощью градиентной оптимизации близки к результатам, полученным с помощью аппроксимации линейными моделями.
+\end{frame}
+
+\begin{frame}{Выборки CIFAR-10 и  Fashion-MNIST}
+
+% \fontsize{13}{10}\selectfont
+%     Метод оценивался на всей выборке CIFAR-10 и ее подмножестве ($|\mathfrak{D}_\text{train}|=12800$). Выборка состоит из~$60000$ цветных изображений размера~$32 \times 32$, разделенных на 10 непересекающихся классов. В каждом классе содержится~$6000$ изображений. Выборка разделена на обучающую и валидационную части. Обучающая выборка содержит $5000$ изображений. Тестовая выборка --- $1000$ изображений. Fashion-MNIST --- это выборка черно-белых изображений размера ~$28 \times 28$ разделенных на 10 непересекающихся классов. Обучающая выборка состроит из 60000 объектов, тестовая --- из 10000  объектов.
+
+Метод оценивался на выборках Fashion-MNIST, CIFAR-10 и подмножестве CIFAR-10, которое составляет 10\% от исходной выборки.
+    
+\begin{figure}
+    % \vspace{-0.5 cm}
+    \begin{minipage}[h]{0.45\linewidth}
+    \center{
+    \includegraphics[width=\textwidth]{slides_rus/cifar_data.pdf}}
+    \vspace{-1 cm}
+    \fontsize{10}{5}
+    \caption*{CIFAR-10}
+    \end{minipage}
+    \begin{minipage}[h]{0.45\linewidth}
+    % \vspace{-0.5 cm}
+    \center{
+    \includegraphics[width=\textwidth]{slides_rus/fashionmnist_data.pdf}}
+    \vspace{-1 cm}
+    \fontsize{10}{5}
+    \caption*{Fashion-MNIST}
+    \end{minipage}
+\end{figure}
+
+%     \begin{figure}
+%     \caption*{\fontsize{11}{5}\selectfont
+%     Точность модели со значениями $e_1$ и $e_2$: а) $e_1 = e_2$; б) подбор $e_2$ при $e_1 = 10$.}
+%     \vspace{-0.2 cm}
+%     \begin{minipage}[h]{0.45\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{synth_mini_epoch_size_rus.pdf}\\(а)}
+%     \end{minipage}
+%     \begin{minipage}[h]{0.45\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{synth_period_rus.pdf}\\(б)}
+%     \end{minipage}
+
+\end{frame}
+
+% \begin{frame}{Basic experiment}
+%     \fontsize{6}{5}\selectfont
+% \begin{columns}[c]
+% \hspace{-0.2 cm}
+% \column{0.7\textwidth}
+% \begin{figure}
+%     \caption*{%\fontsize{10}{12}\selectfont
+%     Model accuracy depending on a) $\lambda_1$; b) temperature}
+%     \vspace{-0.3 cm}
+%     \begin{minipage}[h]{0.45\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{slides_eng/scatter_beta_acc_eng.png}\\a)}
+%     \end{minipage}
+%     \hspace{-0.2 cm}
+%     \begin{minipage}[h]{0.45\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{slides_eng/scatter_temp_acc_eng.png}\\b)}
+%     \end{minipage}
+% \end{figure}
+% \hspace{-2 cm}
+% \column{0.32\textwidth}
+% \hspace{-2 cm}
+% \begin{figure}
+%     \caption*{%\fontsize{10}{12}\selectfont
+%     Model accuracy depending on $\lambda_1$ and temperature}
+%     \center{
+%     \includegraphics[width=\linewidth]{slides_eng/scatter_temp_beta2_eng.pdf}}
+% \end{figure}
+% \end{columns}
+% \begin{figure}
+%     \caption*{\fontsize{10}{12}\selectfont
+%     Model accuracy depending on a) $\lambda_1$; b) temperature; c) температуры}
+%     \vspace{-0.3 cm}
+%     \begin{minipage}[h]{0.325\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{slides_eng/scatter_beta_acc_eng.png}\\а)}
+%     \end{minipage}
+%     \begin{minipage}[h]{0.325\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{slides_eng/scatter_temp_acc_eng.png}\\б)}
+%     \end{minipage}
+%     \vspace{-0.2 cm}
+%     \begin{minipage}[h]{0.325\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{slides_eng/scatter_temp_beta2_eng.pdf}\\в)}
+%     \end{minipage}
+% \end{figure}    
+% \end{frame}
+
+% \begin{frame}{Meta-parameter update}
+% \fontsize{6}{5}\selectfont
+% \begin{figure}[!ht]
+% \caption*{CIFAR-10, sequence of updated a)~$\lambda_1$; b)~$\lambda_2$; c) temperature}
+% \begin{minipage}[h]{0.325\linewidth}
+% \center{\includegraphics[width=\linewidth]{slides_eng/beta1_iter19_eng.pdf}\\a)}
+% \vspace{-0.3 cm}
+% \end{minipage}
+% \begin{minipage}[h]{0.325\linewidth}
+% \center{\includegraphics[width=\linewidth]{slides_eng/beta2_iter19_eng.pdf}\\b)}
+% \end{minipage}
+% \vspace{-0.3 cm}
+% \begin{minipage}[h]{0.325\linewidth}
+% \center{\includegraphics[width=\linewidth]{slides_eng/temp_iter19_eng.pdf}\\c)}
+% \end{minipage}
+% \end{figure}
+% \end{frame}
+
+\begin{frame}{Результаты эксперимента на выборке CIFAR-10}
+\begin{figure}
+    \caption*{Точность модели на выборке CIFAR-10}
+    \vspace{-1 cm}
+    \includegraphics[width=0.53\textwidth]{mini_cifar_accuracy_rus.pdf}
+\end{figure}
+Точность модели при обучении с дистилляцией значительно выше, чем без нее. 
+Наибольшая точность получена при использовании предложенного метода.
+\end{frame}
+
+\begin{frame}{Результаты эксперимента}
+%     \begin{table}[!ht]
+%     \centering
+%     \begin{tabular}{|c||p{3 cm}|p{4 cm}|p{4 cm}|}
+%     \hline
+%     Experiment & Accuracy~without distillation & Accuracy with metaparameter prediction & Accuracy with metaparameter optimization\\
+%     \hline
+%     Synthetic & 0.7599 & 0.8259 & 0.8299\\
+%     CIFAR-10 & 0.5465 & 0.5961 & 0.6006\\
+%     \hline
+%     \end{tabular}
+%     \label{tab:res}
+% \end{table}
+\begin{table}
+\label{table:results}
+\footnotesize
+\centering
+\begin{tabularx}{\textwidth}{|X|X|X|X|X|X}
+\cline{1-5}
+Метод                      & Синтетическая выборка & Fashion-MNIST & Уменьшенный CIFAR-10 & CIFAR-10      &  \\ \cline{1-5}
+Без дистилляции        & 0.63 (0.63)             & 0.87  (0.88)        & 0.55     (0.56)        & 0.65 (0.66)         &  \\ \cline{1-5}
+Наивный выбор        & 0.63  (0.63)              & 0.87 (0.88)         & 0.55  (0.56)             & 0.66  (0.67)        &  \\ \cline{1-5}
+Случайные метапараметры       & 0.64   (0.72)           & 0.79   (0.88)       & 0.54 (0.57)             & 0.64 (0.67)        &  \\ \cline{1-5}
+Градиентная оптимизация & \textbf{0.77} (0.78)    & \textbf{0.88} (0.89) & \textbf{0.57} (0.61)    & \textbf{0.70} (0.72) &  \\ \cline{1-5}
+Hyperopt                    & \textbf{0.77} (0.78)                & 0.87 (0.88)         & 0.55  (0.58)           & -             &  \\ \cline{1-5}
+Предложенный метод                    & 0.76   (0.78)           & \textbf{0.88} (0.89) & \textbf{0.57}    & \textbf{0.70} (0.72) &  \\ \cline{1-5}
+\end{tabularx}
+\end{table}
+
+% \vspace{0.5 cm}
+% The model accuracy obtained after usage of our method is only slightly lower than the one after usage of metaparameter optimization. The proposed method is less computationally expensive comparing to the usage of only gradient optimization.
+
+Использование предложенного метода и градиентных методов дает похожий результат. Градиентные методы являются предпочтительными, так как они дают схожее качество, но требуют меньше вычислительных затрат.
+
+\end{frame}
+%----------------------------------------------------------------------------------------------------------
+\begin{frame}{Заключение}
+    \begin{itemize}
+        \item Исследовано применение градиентных методов оптимизации для метапараметров задачи дистилляции. 
+        \item Предложена и проверена гипотеза по аппроксимации траектории оптимизации метапараметров. 
+        \item Вычислительный эксперимент показал, что оптимизация метапараметров применима к задаче дистилляции. 
+        \item Подтверждена возможность аппроксимации метапараметров локально-линейными моделями. 
+        \item Планируется дальнейшее исследование оптимизационной задачи и анализ качества  аппроксимации траектории оптимизации метапараметров более сложными прогностическими моделями.
+    \end{itemize}
+\end{frame}
+
+\appendix
+\begin{frame}[plain]{Основная литература}
+% \addtocounter{framenumber}{-1}
+    % \bibliographystyle{slides_bibstyle.bst}
+    % \bibliography{slides_bibliography.bib}
+    \printbibliography
+\end{frame}
+
+% \begin{frame}{Разнородная дистилляция}
+    
+% \end{frame}
+%----------------------------------------------------------------------------------------------------------
+% \end{document} 
+% \end{frame}
+%-----------------------------------------------------------------------------------------------------
+
+
+% \end{frame}
+%----------------------------------------------------------------------------------------------------------
+% \begin{frame}{���������� ������}
+% \end{frame}
+%----------------------------------------------------------------------------------------------------------
+% \begin{frame}{�������}
+% \end{frame}
+%----------------------------------------------------------------------------------------------------------
+% \begin{frame}{�������������� �����������}
+% \end{frame}
+%----------------------------------------------------------------------------------------------------------
+% \begin{frame}{����������}
+% \end{frame}
+%----------------------------------------------------------------------------------------------------------
+\end{document}  
