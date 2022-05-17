@@ -27,17 +27,21 @@
 \addbibresource{slides_bibliography.bib}
 \nocite{*}
 \title[\hbox to 56mm{Оптимизация метапараметров в задаче дистилляции знаний}]{Оптимизация метапараметров в задаче дистилляции знаний}
-\author[Горпинич~М., Бахтеев~О.\,Ю., Стрижов~В.\,В.]{Горпинич~М., Бахтеев~О.\,Ю., Стрижов~В.\,В.}
+\author[Горпинич~М.]{Горпинич~М.}
 % \begingroup
 % \fontsize{8pt}{10pt}\selectfont
-\institute{\fontsize{11}{14}\selectfont Московский физико-технический институт (государственный университет)}
+\institute{ Московский физико-технический институт\\
+Факультет управления и прикладной математики\\
+Кафедра интеллектуальных систем\\
+\textbf{Научный руководитель:} к.ф.-м.н. Бахтеев Олег Юрьевич\\
+}
+
 % \endgroup
 \date{\footnotesize
-% \par\smallskip\emph{Курс:} Автоматизация научных исследований\par (практика, В.\,В.~Стрижов)/Группа 874
-% \par\smallskip\emph{Expert:} V.\,V.~Strijov
-% \par\smallskip\emph{:} О.\,Ю.~Bakhteev
+
+
 % \par\smallskip M.~Gorpinich, V.\,V.~Strijov, O.\,Yu.~Bakhteev
-\par\bigskip\small 2021}
+\par\bigskip\small Весна 2022 г.}
 %----------------------------------------------------------------------------------------------------------
 \begin{document}
 %----------------------------------------------------------------------------------------------------------
@@ -53,11 +57,11 @@
     
 \end{block}
 \begin{block}{Проблема}
-    Задача подбора метапараметров является вычислительно затратной. Однако, правильное назначение метапараметров значительно повышает качество модели.
+    Задача подбора метапараметров является вычислительно затратной. Правильное назначение метапараметров значительно повышает качество модели.
 \end{block}
 % \begin{block}{Метод исследования} 
 \begin{block}{Решение}
-    Рассмотрим двухуровневую задачу оптимизации. Данная задача решается градиентными методами. Для уменьшения вычислительной сложности задачи значения метапараметров предсказываются с помощью линейных моделей.
+    Задача метаоптимизации рассматривается как двухуровневая задача. Решение задачи предлагается проводить градиентными методами. Для уменьшения вычислительной сложности задачи значения метапараметров предсказываются с помощью линейных моделей.
 \end{block}
 \end{frame}
 
@@ -161,13 +165,13 @@ $$\fD = \{(\bx_i, y_i)\}_{i=1}^{m},\; \bx_i \in \bbR^n,\qquad y_i \in \bbY = \{1
 $\bff$ --- фиксированная модель-учитель, $\bg$ --- модель-ученик.
 
 \vspace{0.5 cm} 
-\textbf{Определение 1.}
+\textbf{Определение}
 Пусть функция~$D: \bbR^s \to \bbR_{+}$ определяет расстояние между моделью-учеником~$\bg$ и моделью-учителем~$\bff$. Назовем $D$-дистилляцией модели-ученика такую задачу оптимизации параметров модели ученика, которая минимизирует функцию~$D$.
 
 \vspace{0.5 cm}
 \fontsize{11}{5}\selectfont
 
-\textbf{Утверждение 1.}
+\textbf{Утверждение}
 Если~$\lambda_1 = 0$, то минимизируется функция потерь, являющаяся $D$-дистилляцией с $D = D_{KL}\left(\sigma\left(\bff/T\right), \sigma\left(\bg/T\right)\right)$, где $\sigma$ --- функция softmax.
 
 % Если~$\lambda_1 = 0$, то:
@@ -259,7 +263,7 @@ $$\boldsymbol{\lambda} = [\lambda_1, T]$$
 \begin{columns}[c]
 \column{0.7\textwidth}
 \fontsize{11}{5}\selectfont
-\textbf{Определение 2.} Назовем \emph{оператором оптимизации} алгоритм~$U$ выбора вектора параметров~$\bw^\prime$ с использованием параметров на предыдущем шаге~$\bw$:
+\textbf{Определение} Назовем \emph{оператором оптимизации} алгоритм~$U$ выбора вектора параметров~$\bw^\prime$ с использованием параметров на предыдущем шаге~$\bw$:
 \vspace{-0.2 cm}
 \fontsize{10}{5}\selectfont
 \begin{equation*}
@@ -311,40 +315,44 @@ $$\boldsymbol{\lambda}^\prime =
 
 \end{frame}
 
-\begin{frame}{Итоговый алгоритм}
-    \begin{figure}
-    \vspace{-0.5 cm}
-\begin{algorithm}[H]
-\caption{Оптимизация метапараметров}
- \begin{algorithmic}[1]
+% \begin{frame}{Итоговый алгоритм}
+%     \begin{figure}
+%     \vspace{-0.5 cm}
+% \begin{algorithm}[H]
+% \caption*{\textbf{Algorithm }Оптимизация метапараметров}
+%  \begin{algorithmic}[1]
 
- %\renewcommand{\algorithmicrequire}{\mathbf{Input:}}
- %\renewcommand{\algorithmicensure}{\mathbf{Output:}}
- \REQUIRE число $e_1$ итераций с использованием градиентной оптимизации
- \REQUIRE число $e_2$ итераций с предсказанием $\boldsymbol{\lambda}$ линейными моделями
- %\REQUIRE in
- %\ENSURE  out
-  \WHILE {нет сходимости}
-  \STATE Оптимизация $\boldsymbol{\lambda}$ и $\mathbf{w}$ на протяжении $e_1$ итераций, решая двухуровневую задачу
-  \STATE $\textbf{traj} = $траектория $(\nabla \boldsymbol{\lambda})$ изменяется во время оптимизации;
-  \STATE Положим $\mathbf{z} = [1,\dots,e_1]^\mathsf{T}$
-  \STATE Оптимизация $\mathbf{c}$ с помощью МНК: 
-  $$\hat{\mathbf{c}} = \argmin_{\mathbf{c} \in \mathbb{R}^2} ||\textbf{traj} - \mathbf{z}\cdot c_1 + c_2||_2^2$$
-  \STATE Оптимизация $\mathbf{w}$ и предсказание $\boldsymbol{\lambda}$ на протяжении $e_2$ итераций с помощью линейной модели с параметрами $\mathbf{c}$.
-  \ENDWHILE
+%  %\renewcommand{\algorithmicrequire}{\mathbf{Input:}}
+%  %\renewcommand{\algorithmicensure}{\mathbf{Output:}}
+%  \REQUIRE число $e_1$ итераций с использованием градиентной оптимизации
+%  \REQUIRE число $e_2$ итераций с предсказанием $\boldsymbol{\lambda}$ линейными моделями
+%  %\REQUIRE in
+%  %\ENSURE  out
+%   \WHILE {нет сходимости}
+%   \STATE Оптимизация $\boldsymbol{\lambda}$ и $\mathbf{w}$ на протяжении $e_1$ итераций, решая двухуровневую задачу
+%   \STATE $\textbf{traj} = $траектория $(\nabla \boldsymbol{\lambda})$ изменяется во время оптимизации;
+%   \STATE Положим $\mathbf{z} = [1,\dots,e_1]^\mathsf{T}$
+%   \STATE Оптимизация $\mathbf{c}$ с помощью МНК: 
+%   $$\hat{\mathbf{c}} = \argmin_{\mathbf{c} \in \mathbb{R}^2} ||\textbf{traj} - \mathbf{z}\cdot c_1 + c_2||_2^2$$
+%   \STATE Оптимизация $\mathbf{w}$ и предсказание $\boldsymbol{\lambda}$ на протяжении $e_2$ итераций с помощью линейной модели с параметрами $\mathbf{c}$.
+%   \ENDWHILE
 
- \end{algorithmic}
- \end{algorithm}
- \vspace{-0.5 cm}
- \caption*{Алгоритм для предложенного метода.}
- \label{algo}
+%  \end{algorithmic}
+%  \end{algorithm}
+%  \vspace{-0.5 cm}
+%  \caption*{Алгоритм для предложенного метода.}
+%  \label{algo}
 
- \end{figure}
-\end{frame}
+%  \end{figure}
+% \end{frame}
 
 \begin{frame}{Корректность аппроксимации линейной моделью}
 
-\textbf{Теорема 1.} Если функция $\mathcal{L}_{\textnormal{train}}(\bw, \boldsymbol{\lambda})$ является гладкой и выпуклой, и ее Гессиан $\mathbf{H} = \nabla_{\bw}^2 \mathcal{L}_\textnormal{train}$ обратим и является единичной матрицей, $\mathbf{H} = \mathbf{I},$ а также если параметры $\bw$ равны $\bw^*$, где $\bw^*$ --- точка локального минимума для текущего значения $\boldsymbol{\lambda},$ тогда жадный алгоритм находит оптимальное решение двухуровневой задачи. Если существует область $\cD \in \bbR^2$ в пространстве метапараметров, такая что градиент метапараметров может быть аппроксимирован константой, то оптимизация является линейной по метапараметрам.
+\textbf{Теорема} Если функция $\mathcal{L}_{\textnormal{train}}(\bw, \boldsymbol{\lambda})$ является гладкой и выпуклой, и ее Гессиан $\mathbf{H} = \nabla_{\bw}^2 \mathcal{L}_\textnormal{train}$ обратим и является единичной матрицей, $\mathbf{H} = \mathbf{I},$ а также если параметры $\bw$ равны $\bw^*$, где $\bw^*$ --- точка локального минимума для текущего значения $\boldsymbol{\lambda},$ тогда жадный алгоритм находит оптимальное решение двухуровневой задачи.\\
+
+\vspace{0.2cm}
+
+Если существует область $\cD \in \bbR^2$ в пространстве метапараметров, такая что градиент метапараметров может быть аппроксимирован константой, то оптимизация является линейной по метапараметрам.
 
 \end{frame}
 
@@ -370,14 +378,22 @@ $$\boldsymbol{\lambda}^\prime =
 \fontsize{11}{5}\selectfont
 \begin{enumerate}[{1)}]
     \item оптимизация без дистилляции;
-    \item оптимизация со случайной инициализацией метапараметров. Метапараметры выбираются из равномерного распределения
-    \vspace{-0.3 cm}
+    \item оптимизация со случайной инициализацией метапараметров. Метапараметры выбираются из равномерного распределения:
+    
+    \vspace{-0.1 cm}
+    
     $$\lambda_1 \sim \mathcal{U}(0;1), \quad T \sim \mathcal{U}(0.1, 10).$$
-    \vspace{-0.7 cm}
-    \item оптимизация с ``наивным'' назначением метапараметров:
+    
     \vspace{-0.3 cm}
+    
+    \item оптимизация с ``наивным'' назначением метапараметров:
+    
+    \vspace{-0.1 cm}
+    
     $$\lambda_1 = 0.5, T = 1;$$
-    \vspace{-0.7 cm}
+    
+    \vspace{-0.3 cm}
+    
     \item градиентная оптимизация;
     \item hyperopt;
     \item предложенный метод.
@@ -394,72 +410,72 @@ $$\boldsymbol{\lambda}^\prime =
     
 \end{frame}
 
-\begin{frame}{Эксперимент на синтетических данных}
+% \begin{frame}{Эксперимент на синтетических данных}
 
-\begin{block}{Выборка}
-% \vspace{-1 cm}
-\fontsize{11}{5}\selectfont
-$$\fD = \{(\bx_i, y_i)\}_{i=1}^{m},\; x_{ij} \in \cN(0, 1),\qquad j=1, 2, \qquad x_{i3} = [\text{sign}(x_{i1})+\text{sign}(x_{i2})>0],$$
-$$y_i = \text{sign}(x_{i1} \cdot x_{i2}+\delta) \in \bbY.$$
-Размер выборки для модели-ученика существенно меньше размера выборки для модели-учителя.
-\vspace{-0.2 cm}
-\end{block}
-\begin{figure}
-    \fontsize{5}{5}\selectfont
-    \begin{minipage}[h]{0.3\linewidth}
-    \center{
-    \includegraphics[width=\linewidth]{ttrain.pdf}\\а)}
-    \end{minipage}
-    \begin{minipage}[h]{0.3\linewidth}
-    \center{
-    \includegraphics[width=\linewidth]{train.pdf}\\б)}
-    \end{minipage}
-    \begin{minipage}[h]{0.3\linewidth}
-    \center{
-    \includegraphics[width=\linewidth]{test.pdf}\\в)}
-    \end{minipage}
-    \vspace{-0.2 cm}
-    \caption*{\fontsize{8}{5}\selectfont
-    Визуализация выборки для а) модели-учителя; б) модели-ученика; в) тестовой выборки}
-\end{figure}
-\end{frame}
+% \begin{block}{Выборка}
+% % \vspace{-1 cm}
+% \fontsize{11}{5}\selectfont
+% $$\fD = \{(\bx_i, y_i)\}_{i=1}^{m},\; x_{ij} \in \cN(0, 1),\qquad j=1, 2, \qquad x_{i3} = [\text{sign}(x_{i1})+\text{sign}(x_{i2})>0],$$
+% $$y_i = \text{sign}(x_{i1} \cdot x_{i2}+\delta) \in \bbY.$$
+% Размер выборки для модели-ученика существенно меньше размера выборки для модели-учителя.
+% \vspace{-0.2 cm}
+% \end{block}
+% \begin{figure}
+%     \fontsize{5}{5}\selectfont
+%     \begin{minipage}[h]{0.3\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{ttrain.pdf}\\а)}
+%     \end{minipage}
+%     \begin{minipage}[h]{0.3\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{train.pdf}\\б)}
+%     \end{minipage}
+%     \begin{minipage}[h]{0.3\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{test.pdf}\\в)}
+%     \end{minipage}
+%     \vspace{-0.2 cm}
+%     \caption*{\fontsize{8}{5}\selectfont
+%     Визуализация выборки для а) модели-учителя; б) модели-ученика; в) тестовой выборки}
+% \end{figure}
+% \end{frame}
 
-\begin{frame}{Настройка параметров алгоритма}
+% \begin{frame}{Настройка параметров алгоритма}
 
-    % \begin{figure}
-    % \begin{minipage}[h]{0.45\linewidth}
-    % \center{
-    % \includegraphics[width=\linewidth]{slides_eng/linear_epoch_size_eng.pdf}\\a)}
-    % \end{minipage}
-    % \begin{minipage}[h]{0.45\linewidth}
-    % \center{
-    % \includegraphics[width=\linewidth]{slides_eng/linear_train_splines_every_epoch_eng.pdf}\\b)}
-    % \end{minipage}
-    % \vspace{-0.2 cm}
-    % \caption*{\fontsize{10}{5}\selectfont
-    % Model accuracy with different a) epoch size; b) rerun periodicity}
-    % \end{figure}
-\fontsize{8}{5}\selectfont
-    \begin{figure}
-    \caption*{\fontsize{11}{5}\selectfont
-    Точность модели со значениями $e_1$ и $e_2$: а) $e_1 = e_2$; б) подбор $e_2$ при $e_1 = 10$.}
-    \vspace{-0.2 cm}
-    \begin{minipage}[h]{0.45\linewidth}
-    \center{
-    \includegraphics[width=\linewidth]{synth_mini_epoch_size_rus.pdf}\\(а)}
-    \end{minipage}
-    \begin{minipage}[h]{0.45\linewidth}
-    \center{
-    \includegraphics[width=\linewidth]{synth_period_rus.pdf}\\(б)}
-    \end{minipage}
+%     % \begin{figure}
+%     % \begin{minipage}[h]{0.45\linewidth}
+%     % \center{
+%     % \includegraphics[width=\linewidth]{slides_eng/linear_epoch_size_eng.pdf}\\a)}
+%     % \end{minipage}
+%     % \begin{minipage}[h]{0.45\linewidth}
+%     % \center{
+%     % \includegraphics[width=\linewidth]{slides_eng/linear_train_splines_every_epoch_eng.pdf}\\b)}
+%     % \end{minipage}
+%     % \vspace{-0.2 cm}
+%     % \caption*{\fontsize{10}{5}\selectfont
+%     % Model accuracy with different a) epoch size; b) rerun periodicity}
+%     % \end{figure}
+% \fontsize{8}{5}\selectfont
+%     \begin{figure}
+%     \caption*{\fontsize{11}{5}\selectfont
+%     Точность модели со значениями $e_1$ и $e_2$: а) $e_1 = e_2$; б) подбор $e_2$ при $e_1 = 10$.}
+%     \vspace{-0.2 cm}
+%     \begin{minipage}[h]{0.45\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{synth_mini_epoch_size_rus.pdf}\\(а)}
+%     \end{minipage}
+%     \begin{minipage}[h]{0.45\linewidth}
+%     \center{
+%     \includegraphics[width=\linewidth]{synth_period_rus.pdf}\\(б)}
+%     \end{minipage}
     
     
-\end{figure}
+% \end{figure}
     
-    \fontsize{12}{8}\selectfont
-    Лучшая точность получена при $e_1 = e_2=10$.
+%     \fontsize{12}{8}\selectfont
+%     Лучшая точность получена при $e_1 = e_2=10$.
     
-\end{frame}
+% \end{frame}
 
 % \begin{frame}{Выбор периодичности перезапусков}
 % График зависимости точности классификации от номера итерации при различном количестве перезапусков
@@ -501,46 +517,46 @@ $$y_i = \text{sign}(x_{i1} \cdot x_{i2}+\delta) \in \bbY.$$
 Результаты, полученные с помощью градиентной оптимизации близки к результатам, полученным с помощью аппроксимации линейными моделями.
 \end{frame}
 
-\begin{frame}{Выборки CIFAR-10 и  Fashion-MNIST}
+% \begin{frame}{Выборки CIFAR-10 и  Fashion-MNIST}
 
-% \fontsize{13}{10}\selectfont
-%     Метод оценивался на всей выборке CIFAR-10 и ее подмножестве ($|\mathfrak{D}_\text{train}|=12800$). Выборка состоит из~$60000$ цветных изображений размера~$32 \times 32$, разделенных на 10 непересекающихся классов. В каждом классе содержится~$6000$ изображений. Выборка разделена на обучающую и валидационную части. Обучающая выборка содержит $5000$ изображений. Тестовая выборка --- $1000$ изображений. Fashion-MNIST --- это выборка черно-белых изображений размера ~$28 \times 28$ разделенных на 10 непересекающихся классов. Обучающая выборка состроит из 60000 объектов, тестовая --- из 10000  объектов.
+% % \fontsize{13}{10}\selectfont
+% %     Метод оценивался на всей выборке CIFAR-10 и ее подмножестве ($|\mathfrak{D}_\text{train}|=12800$). Выборка состоит из~$60000$ цветных изображений размера~$32 \times 32$, разделенных на 10 непересекающихся классов. В каждом классе содержится~$6000$ изображений. Выборка разделена на обучающую и валидационную части. Обучающая выборка содержит $5000$ изображений. Тестовая выборка --- $1000$ изображений. Fashion-MNIST --- это выборка черно-белых изображений размера ~$28 \times 28$ разделенных на 10 непересекающихся классов. Обучающая выборка состроит из 60000 объектов, тестовая --- из 10000  объектов.
 
-Метод оценивался на выборках Fashion-MNIST, CIFAR-10 и подмножестве CIFAR-10, которое составляет 10\% от исходной выборки.
+% Метод оценивался на выборках Fashion-MNIST, CIFAR-10 и подмножестве CIFAR-10, которое составляет 10\% от исходной выборки.
     
-\begin{figure}
-    % \vspace{-0.5 cm}
-    \begin{minipage}[h]{0.45\linewidth}
-    \center{
-    \includegraphics[width=\textwidth]{slides_rus/cifar_data.pdf}}
-    \vspace{-1 cm}
-    \fontsize{10}{5}
-    \caption*{CIFAR-10}
-    \end{minipage}
-    \begin{minipage}[h]{0.45\linewidth}
-    % \vspace{-0.5 cm}
-    \center{
-    \includegraphics[width=\textwidth]{slides_rus/fashionmnist_data.pdf}}
-    \vspace{-1 cm}
-    \fontsize{10}{5}
-    \caption*{Fashion-MNIST}
-    \end{minipage}
-\end{figure}
-
-%     \begin{figure}
-%     \caption*{\fontsize{11}{5}\selectfont
-%     Точность модели со значениями $e_1$ и $e_2$: а) $e_1 = e_2$; б) подбор $e_2$ при $e_1 = 10$.}
-%     \vspace{-0.2 cm}
+% \begin{figure}
+%     % \vspace{-0.5 cm}
 %     \begin{minipage}[h]{0.45\linewidth}
 %     \center{
-%     \includegraphics[width=\linewidth]{synth_mini_epoch_size_rus.pdf}\\(а)}
+%     \includegraphics[width=\textwidth]{slides_rus/cifar_data.pdf}}
+%     \vspace{-1 cm}
+%     \fontsize{10}{5}
+%     \caption*{CIFAR-10}
 %     \end{minipage}
 %     \begin{minipage}[h]{0.45\linewidth}
+%     % \vspace{-0.5 cm}
 %     \center{
-%     \includegraphics[width=\linewidth]{synth_period_rus.pdf}\\(б)}
+%     \includegraphics[width=\textwidth]{slides_rus/fashionmnist_data.pdf}}
+%     \vspace{-1 cm}
+%     \fontsize{10}{5}
+%     \caption*{Fashion-MNIST}
 %     \end{minipage}
+% \end{figure}
 
-\end{frame}
+% %     \begin{figure}
+% %     \caption*{\fontsize{11}{5}\selectfont
+% %     Точность модели со значениями $e_1$ и $e_2$: а) $e_1 = e_2$; б) подбор $e_2$ при $e_1 = 10$.}
+% %     \vspace{-0.2 cm}
+% %     \begin{minipage}[h]{0.45\linewidth}
+% %     \center{
+% %     \includegraphics[width=\linewidth]{synth_mini_epoch_size_rus.pdf}\\(а)}
+% %     \end{minipage}
+% %     \begin{minipage}[h]{0.45\linewidth}
+% %     \center{
+% %     \includegraphics[width=\linewidth]{synth_period_rus.pdf}\\(б)}
+% %     \end{minipage}
+
+% \end{frame}
 
 % \begin{frame}{Basic experiment}
 %     \fontsize{6}{5}\selectfont
@@ -609,15 +625,15 @@ $$y_i = \text{sign}(x_{i1} \cdot x_{i2}+\delta) \in \bbY.$$
 % \end{figure}
 % \end{frame}
 
-\begin{frame}{Результаты эксперимента на выборке CIFAR-10}
-\begin{figure}
-    \caption*{Точность модели на выборке CIFAR-10}
-    \vspace{-1 cm}
-    \includegraphics[width=0.53\textwidth]{mini_cifar_accuracy_rus.pdf}
-\end{figure}
-Точность модели при обучении с дистилляцией значительно выше, чем без нее. 
-Наибольшая точность получена при использовании предложенного метода.
-\end{frame}
+% \begin{frame}{Результаты эксперимента на выборке CIFAR-10}
+% \begin{figure}
+%     \caption*{Точность модели на выборке CIFAR-10}
+%     \vspace{-1 cm}
+%     \includegraphics[width=0.53\textwidth]{mini_cifar_accuracy_rus.pdf}
+% \end{figure}
+% Точность модели при обучении с дистилляцией значительно выше, чем без нее. 
+% Наибольшая точность получена при использовании предложенного метода.
+% \end{frame}
 
 \begin{frame}{Результаты эксперимента}
 %     \begin{table}[!ht]
@@ -665,17 +681,33 @@ Hyperopt                    & \textbf{0.77} (0.78)                & 0.87 (0.88) 
     \end{itemize}
 \end{frame}
 
-\appendix
-\begin{frame}[plain]{Основная литература}
-% \addtocounter{framenumber}{-1}
-    % \bibliographystyle{slides_bibstyle.bst}
-    % \bibliography{slides_bibliography.bib}
-    \printbibliography
-\end{frame}
-
-% \begin{frame}{Разнородная дистилляция}
-    
+% \appendix
+% \begin{frame}[plain]{Основная литература}
+% % \addtocounter{framenumber}{-1}
+%     % \bibliographystyle{slides_bibstyle.bst}
+%     % \bibliography{slides_bibliography.bib}
+%     \printbibliography
 % \end{frame}
+
+\begin{frame}{Результаты}
+
+Публикации ВАК по теме:
+
+\begin{enumerate}
+    \item \textit{Горпинич М., Бахтеев О.Ю., Стрижов В.В.} Градиентные методы оптимизации метапараметров в задаче дистилляции знаний // Автоматика и телемеханика (на рецензировании).
+\end{enumerate}
+
+Выступление с докладом:
+    
+\begin{enumerate}
+    \item Metaparameter optimization in knowledge distillation // Maths \& AI: MIPT-UGA young researchers workshop, 2021.
+    \item Градиентные методы оптимизации метапараметров в задаче дистилляции знаний // 64-я Всероссийская научная конференция МФТИ, 2021.
+    \item Градиентные методы оптимизации метапараметров в задаче дистилляции знаний // Математические методы распознавания образов (ММРО-2021), 2021.
+\end{enumerate}
+
+
+
+\end{frame}
 %----------------------------------------------------------------------------------------------------------
 % \end{document} 
 % \end{frame}
